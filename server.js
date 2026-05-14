@@ -146,6 +146,9 @@ process.on('unhandledRejection', (err) => {
   console.error('Unhandled Rejection:', err.message);
   server.close(() => process.exit(1));
 });
-console.log(`http://localhost:${process.env.PORT}/api`)
+
+app.listen(process.env.PORT, () => {
+    console.log(`Server running on ${process.env.PORT}`);
+});
 
 module.exports = app;
