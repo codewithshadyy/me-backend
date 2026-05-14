@@ -26,8 +26,10 @@ const authLimiter = rateLimit({
 const register = asyncHandler(async (req,res) => {
 
     try {
-        const {username, password} =req.body
-        const userExists = await Admin.findOne({username})
+        const {username,email, password} =req.body
+        const userExists = await Admin.findOne({
+            $or: [{ username }, { email: username }]
+        })
 
         if(userExists){
             res.status(400).json({message:"user takken"})
@@ -36,6 +38,7 @@ const register = asyncHandler(async (req,res) => {
         const hashedPassword = await bcrypt.hash(password, 10)
         const user = await Admin.create({
             username,
+            email,
             password:hashedPassword
         })
 
