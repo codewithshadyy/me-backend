@@ -6,8 +6,8 @@
 'use strict';
 
 const Contact    = require('../models/Contact');
-const { asyncHandler, ApiError } = require('../middleware/errorHandler');
-const { sendContactEmail, sendAutoReply } = require('../utils/mailer');
+const { asyncHandler, ApiError } = require('../middlewares/errorHandler');
+const { sendContactEmail, sendAutoReply } = require('../utils/mail');
 
 // ─────────────────────────────────────────────────────────
 // @route   POST /api/contact

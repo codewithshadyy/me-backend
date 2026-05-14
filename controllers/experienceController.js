@@ -4,7 +4,7 @@
 'use strict';
 
 const Experience = require('../models/Experience');
-const { asyncHandler, ApiError } = require('../middleware/errorHandler');
+const { asyncHandler, ApiError } = require('../middlewares/errorHandler');
 
 // GET /api/experiences — Public
 const getExperiences = asyncHandler(async (req, res) => {

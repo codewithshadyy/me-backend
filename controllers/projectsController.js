@@ -3,8 +3,8 @@
 'use strict';
 
 const Project               = require('../models/Project');
-const { asyncHandler, ApiError } = require('../middleware/errorHandler');
-const { buildFileUrl, deleteFile } = require('../middleware/upload');
+const { asyncHandler, ApiError } = require('../middlewares/errorHandler');
+const { buildFileUrl, deleteFile } = require('../middlewares/upload');
 
 // ─────────────────────────────────────────────────────────
 // @route   GET /api/projects

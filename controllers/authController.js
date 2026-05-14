@@ -3,8 +3,8 @@
 'use strict';
 
 const Admin             = require('../models/Admin');
-const { generateToken } = require('../middleware/auth');
-const { asyncHandler, ApiError } = require('../middleware/errorHandler');
+const { generateToken } = require('../middlewares/auth');
+const { asyncHandler, ApiError } = require('../middlewares/errorHandler');
 const { rateLimit, ipKeyGenerator } = require('express-rate-limit');
 
 // ── Auth-specific stricter rate limiter ────────────────────

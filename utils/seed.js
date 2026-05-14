@@ -7,7 +7,7 @@ const Admin      = require('../models/Admin');
 const Project    = require('../models/Project');
 const Experience = require('../models/Experience');
 
-const MONGO_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/portfolio_db';
+const MONGO_URI = process.env.MONGODB_URI;
 
 // ── Sample Data ────────────────────────────────────────────
 const PROJECTS = [
@@ -200,9 +200,9 @@ async function seed() {
     const existing = await Admin.findOne({ username: process.env.ADMIN_USERNAME || 'admin' });
     if (!existing) {
       await Admin.create({
-        username: process.env.ADMIN_USERNAME || 'admin',
-        email   : process.env.ADMIN_EMAIL    || 'admin@alexoduya.dev',
-        password: process.env.ADMIN_PASSWORD || 'admin123',
+        username: process.env.ADMIN_USERNAME,
+        email   : process.env.ADMIN_EMAIL ,
+        password: process.env.ADMIN_PASSWORD ,
         role    : 'super_admin',
       });
       console.log('✅ Admin user created');

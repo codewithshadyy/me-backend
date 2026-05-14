@@ -6,7 +6,7 @@ const Project    = require('../models/Project');
 const Experience = require('../models/Experience');
 const Contact    = require('../models/Contact');
 const Visitor    = require('../models/Visitor');
-const { asyncHandler } = require('../middleware/errorHandler');
+const { asyncHandler } = require('../middlewares/errorHandler');
 
 // ─────────────────────────────────────────────────────────
 // @route   GET /api/stats/dashboard

@@ -11,9 +11,9 @@ const {
   toggleFeatured, toggleVisible, getCategories,
 } = require('../controllers/projectsController');
 
-const { protect }                    = require('../middleware/auth');
-const { projectRules, mongoIdParam, paginationQuery, validate } = require('../middleware/validate');
-const { upload, toProjectsFolder }   = require('../middleware/upload');
+const { protect }                    = require('../middlewares/auth');
+const { projectRules, mongoIdParam, paginationQuery, validate } = require('../middlewares/validate');
+const { upload, toProjectsFolder }   = require('../middlewares/upload');
 
 // ── Public ─────────────────────────────────────────────────
 router.get('/',               paginationQuery, validate, getProjects);

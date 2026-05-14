@@ -12,8 +12,8 @@ const {
   toggleVisible, reorderExperiences,
 } = require('../controllers/experienceController');
 
-const { protect }                           = require('../middleware/auth');
-const { experienceRules, mongoIdParam, validate } = require('../middleware/validate');
+const { protect }                           = require('../middlewares/auth');
+const { experienceRules, mongoIdParam, validate } = require('../middlewares/validate');
 
 // Public
 router.get('/',    getExperiences);

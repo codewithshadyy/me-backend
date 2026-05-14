@@ -12,8 +12,8 @@ const {
   updateStatus, addNotes, deleteMessage, getContactStats,
 } = require('../controllers/contactController');
 
-const { protect }                            = require('../middleware/auth');
-const { contactRules, mongoIdParam, validate } = require('../middleware/validate');
+const { protect }                            = require('../middlewares/auth');
+const { contactRules, mongoIdParam, validate } = require('../middlewares/validate');
 
 // Stricter rate limiter for contact form (prevent spam)
 const contactLimiter = rateLimit({

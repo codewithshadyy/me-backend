@@ -11,9 +11,9 @@ const router  = express.Router();
 const path    = require('path');
 const fs      = require('fs');
 
-const { protect }                                           = require('../middleware/auth');
-const { upload, toProjectsFolder, toAvatarsFolder, toMiscFolder, buildFileUrl, deleteFile } = require('../middleware/upload');
-const { asyncHandler, ApiError }                           = require('../middleware/errorHandler');
+const { protect }                                           = require('../middlewares/auth');
+const { upload, toProjectsFolder, toAvatarsFolder, toMiscFolder, buildFileUrl, deleteFile } = require('../middlewares/upload');
+const { asyncHandler, ApiError }                           = require('../middlewares/errorHandler');
 
 // ── POST /api/upload/project-images ───────────────────────
 // Upload 1–10 project images

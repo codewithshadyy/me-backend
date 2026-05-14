@@ -9,7 +9,7 @@ const express = require('express');
 const router  = express.Router();
 
 const { getDashboard, recordVisit, getVisitorStats } = require('../controllers/statsController');
-const { protect } = require('../middleware/auth');
+const { protect } = require('../middlewares/auth');
 
 // Public — visitor tracking
 router.post('/visit', recordVisit);

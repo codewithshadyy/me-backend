@@ -11,7 +11,7 @@ const path       = require('path');
 const rateLimit  = require('express-rate-limit');
 
 const connectDB  = require('./config/db');
-const errorHandler = require('./middlewares/errorHandler');
+const errorHandler = require("./middlewares/errorHandler")
 const { notFound } = require('./middlewares/errorHandler');
 
 // ── Route imports ────────────────────────────────────────────
@@ -26,7 +26,7 @@ const statsRoutes      = require('./routes/stats');
 connectDB();
 
 const app  = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT;
 
 // ── Security Middleware ──────────────────────────────────────
 app.use(helmet({
@@ -119,12 +119,12 @@ app.get('/api', (_req, res) => {
 
 // ── 404 & Error Handlers ─────────────────────────────────────
 app.use(notFound);
-app.use(errorHandler);
+// app.use(errorHandler);
 
 // ── Start Server ─────────────────────────────────────────────
 const server = app.listen(PORT, () => {
   console.log('\n╔══════════════════════════════════════════╗');
-  console.log('║      Portfolio API — Alex Oduya          ║');
+  console.log('║      Portfolio API — shadrack kipkoech          ║');
   console.log('╠══════════════════════════════════════════╣');
   console.log(`║  Status  : ✅ Running                    ║`);
   console.log(`║  Port    : ${PORT}                             ║`);
@@ -146,5 +146,6 @@ process.on('unhandledRejection', (err) => {
   console.error('Unhandled Rejection:', err.message);
   server.close(() => process.exit(1));
 });
+console.log(`http://localhost:${process.env.PORT}/api`)
 
 module.exports = app;
