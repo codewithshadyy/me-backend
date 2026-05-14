@@ -8,7 +8,7 @@ const { protect } = require('../middlewares/auth');
 const { loginRules, changePasswordRules, validate } = require('../middlewares/validate');
 
 // Public
-router.post('/login', login);
+router.post('/login', authLimiter, loginRules, validate,login);
 
 // Private
 router.get('/me',              protect, getMe);
