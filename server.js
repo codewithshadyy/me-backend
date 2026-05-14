@@ -104,7 +104,7 @@ app.get('/api', (_req, res) => {
     success : true,
     message : 'Portfolio API is running',
     version : '1.0.0',
-    author  : 'Alex Oduya',
+    author  : 'shadrackkipkoech',
     endpoints: {
       auth        : '/api/auth',
       projects    : '/api/projects',
