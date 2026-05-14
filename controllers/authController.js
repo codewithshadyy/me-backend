@@ -33,7 +33,7 @@ const register = asyncHandler(async (req,res) => {
             res.status(400).json({message:"user takken"})
         }
 
-        hashedPassword = await bcrypt.hash(password, 10)
+        const hashedPassword = await bcrypt.hash(password, 10)
         const user = await Admin.create({
             username,
             password:hashedPassword
