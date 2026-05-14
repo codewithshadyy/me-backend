@@ -23,7 +23,7 @@ const authLimiter = rateLimit({
 // @desc    Admin login — returns JWT
 // @access  Public
 // ─────────────────────────────────────────────────────────
-const register = asyncHandler(async (req,res) => {
+const register = async (req,res) => {
 
     try {
         const {username,email, password} =req.body
@@ -52,7 +52,7 @@ const register = asyncHandler(async (req,res) => {
         
     }
     
-})
+}
 const login = asyncHandler(async (req, res) => {
   const { username, password } = req.body;
 
