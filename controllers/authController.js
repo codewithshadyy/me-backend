@@ -6,6 +6,7 @@ const Admin             = require('../models/Admin');
 const { generateToken } = require('../middlewares/auth');
 const { asyncHandler, ApiError } = require('../middlewares/errorHandler');
 const { rateLimit, ipKeyGenerator } = require('express-rate-limit');
+const bcrypt = require("bcrypt")
 
 // ── Auth-specific stricter rate limiter ────────────────────
 const authLimiter = rateLimit({
@@ -22,6 +23,33 @@ const authLimiter = rateLimit({
 // @desc    Admin login — returns JWT
 // @access  Public
 // ─────────────────────────────────────────────────────────
+const register = asyncHandler(async (req,res) => {
+
+    try {
+        const {username, password} =req.body
+        const userExists = await Admin.findOne({username})
+
+        if(userExists){
+            res.status(400).json({message:"user takken"})
+        }
+
+        hashedPassword = await bcrypt.hash(password, 10)
+        const user = await Admin.create({
+            username,
+            password:hashedPassword
+        })
+
+        res.status(201).json({message:"user created"})
+        
+    } catch (error) {
+        res.status(500).json({
+            success:false,
+            message:error.message
+        })
+        
+    }
+    
+})
 const login = asyncHandler(async (req, res) => {
   const { username, password } = req.body;
 
@@ -117,4 +145,4 @@ const verifyToken = asyncHandler(async (req, res) => {
   res.json({ success: true, valid: true, admin: req.admin });
 });
 
-module.exports = { login, getMe, logout, changePassword, verifyToken, authLimiter };
+module.exports = { login, getMe, logout, changePassword, verifyToken, authLimiter, register };
