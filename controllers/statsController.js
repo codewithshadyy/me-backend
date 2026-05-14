@@ -1,193 +1,126 @@
-/**
- * controllers/contactController.js
- * Contact form handling + email notifications
- */
+
 
 'use strict';
 
+const Project    = require('../models/Project');
+const Experience = require('../models/Experience');
 const Contact    = require('../models/Contact');
-const { asyncHandler, ApiError } = require('../middleware/errorHandler');
-const { sendContactEmail, sendAutoReply } = require('../utils/mailer');
+const Visitor    = require('../models/Visitor');
+const { asyncHandler } = require('../middleware/errorHandler');
 
 // ─────────────────────────────────────────────────────────
-// @route   POST /api/contact
-// @desc    Submit contact form (public)
-// @access  Public
-// ─────────────────────────────────────────────────────────
-const submitContact = asyncHandler(async (req, res) => {
-  const {
-    name, email, phone, projectType,
-    budget, message, collaboration,
-  } = req.body;
-
-  // Simple honeypot spam check (if a 'website' field is filled = bot)
-  if (req.body.website) {
-    return res.status(200).json({ success: true, message: 'Message received' }); // silently ignore
-  }
-
-  // Save to database
-  const contact = await Contact.create({
-    name, email, phone, projectType,
-    budget, message,
-    collaboration: collaboration === true || collaboration === 'true',
-    status   : 'unread',
-    ipAddress: req.ip,
-    userAgent: req.get('User-Agent'),
-  });
-
-  // Send emails (non-blocking — don't fail if email fails)
-  try {
-    await Promise.all([
-      sendContactEmail(contact),   // notify admin
-      sendAutoReply(contact),      // confirm to sender
-    ]);
-  } catch (emailErr) {
-    console.warn('Email delivery failed (non-critical):', emailErr.message);
-  }
-
-  res.status(201).json({
-    success: true,
-    message: 'Message received! I\'ll get back to you within 24 hours.',
-    id: contact._id,
-  });
-});
-
-// ─────────────────────────────────────────────────────────
-// @route   GET /api/contact
-// @desc    Get all messages (admin)
+// @route   GET /api/stats/dashboard
+// @desc    Full dashboard analytics
 // @access  Private
 // ─────────────────────────────────────────────────────────
-const getMessages = asyncHandler(async (req, res) => {
-  const {
-    page   = 1,
-    limit  = 20,
-    status,
-    sort   = '-createdAt',
-  } = req.query;
+const getDashboard = asyncHandler(async (_req, res) => {
+  const [
+    totalProjects,
+    featuredProjects,
+    totalExperiences,
+    totalMessages,
+    unreadMessages,
+    recentMessages,
+    recentProjects,
+  ] = await Promise.all([
+    Project.countDocuments(),
+    Project.countDocuments({ featured: true, visible: true }),
+    Experience.countDocuments(),
+    Contact.countDocuments(),
+    Contact.countDocuments({ status: 'unread' }),
+    Contact.find().sort('-createdAt').limit(5).select('name email projectType status createdAt'),
+    Project.find().sort('-createdAt').limit(4).select('title category featured visible imageUrl createdAt'),
+  ]);
 
-  const filter = {};
-  if (status) filter.status = status;
+  // Visitor stats (last 30 days)
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-  const skip  = (Number(page) - 1) * Number(limit);
-  const total = await Contact.countDocuments(filter);
-  const msgs  = await Contact.find(filter).sort(sort).skip(skip).limit(Number(limit)).lean();
+  const visitors = await Visitor.find({
+    date: { $gte: thirtyDaysAgo.toISOString().split('T')[0] },
+  }).sort('date').select('-uniqueIPs');
 
-  const unread = await Contact.countDocuments({ status: 'unread' });
+  const totalVisitors = visitors.reduce((sum, v) => sum + v.count, 0);
 
   res.json({
     success: true,
-    count  : msgs.length,
-    total,
-    unread,
-    page   : Number(page),
-    pages  : Math.ceil(total / Number(limit)),
-    messages: msgs,
+    data: {
+      counts: {
+        projects   : totalProjects,
+        featured   : featuredProjects,
+        experiences: totalExperiences,
+        messages   : totalMessages,
+        unread     : unreadMessages,
+        visitors   : totalVisitors,
+      },
+      recentMessages,
+      recentProjects,
+      visitorChart: visitors.map(v => ({ date: v.date, count: v.count })),
+    },
   });
 });
 
 // ─────────────────────────────────────────────────────────
-// @route   GET /api/contact/:id
-// @desc    Get single message
-// @access  Private
+// @route   POST /api/stats/visit
+// @desc    Record page visit (public — called by frontend)
+// @access  Public
 // ─────────────────────────────────────────────────────────
-const getMessage = asyncHandler(async (req, res) => {
-  const msg = await Contact.findById(req.params.id);
-  if (!msg) throw new ApiError('Message not found', 404);
+const recordVisit = asyncHandler(async (req, res) => {
+  const ip   = req.ip;
+  const page = req.body.page || '/';
+  const today = new Date().toISOString().split('T')[0];
 
-  // Auto-mark as read
-  if (msg.status === 'unread') {
-    msg.status = 'read';
-    await msg.save();
+  const visitor = await Visitor.findOne({ date: today });
+
+  if (visitor) {
+    // Increment count
+    visitor.count += 1;
+
+    // Track unique IPs
+    if (!visitor.uniqueIPs.includes(ip)) {
+      visitor.uniqueIPs.push(ip);
+    }
+
+    // Track page views
+    const current = visitor.pageViews.get(page) || 0;
+    visitor.pageViews.set(page, current + 1);
+    await visitor.save();
+  } else {
+    await Visitor.create({
+      date      : today,
+      count     : 1,
+      uniqueIPs : [ip],
+      pageViews : { [page]: 1 },
+    });
   }
 
-  res.json({ success: true, message: msg });
+  res.json({ success: true });
 });
 
 // ─────────────────────────────────────────────────────────
-// @route   PATCH /api/contact/:id/status
-// @desc    Update message status
+// @route   GET /api/stats/visitors
+// @desc    Visitor stats for a date range
 // @access  Private
 // ─────────────────────────────────────────────────────────
-const updateStatus = asyncHandler(async (req, res) => {
-  const { status } = req.body;
-  const VALID = ['unread', 'read', 'replied', 'archived', 'spam'];
+const getVisitorStats = asyncHandler(async (req, res) => {
+  const { days = 30 } = req.query;
+  const since = new Date();
+  since.setDate(since.getDate() - Number(days));
+  const sinceStr = since.toISOString().split('T')[0];
 
-  if (!VALID.includes(status)) {
-    throw new ApiError(`Invalid status. Must be one of: ${VALID.join(', ')}`, 400);
-  }
+  const visitors = await Visitor
+    .find({ date: { $gte: sinceStr } })
+    .sort('date')
+    .select('-uniqueIPs');
 
-  const msg = await Contact.findByIdAndUpdate(
-    req.params.id,
-    {
-      status,
-      ...(status === 'replied' ? { repliedAt: new Date() } : {}),
-    },
-    { new: true }
-  );
+  const total = visitors.reduce((s, v) => s + v.count, 0);
 
-  if (!msg) throw new ApiError('Message not found', 404);
-  res.json({ success: true, message: 'Status updated', contact: msg });
+  res.json({
+    success: true,
+    total,
+    days: Number(days),
+    data: visitors.map(v => ({ date: v.date, count: v.count })),
+  });
 });
 
-// ─────────────────────────────────────────────────────────
-// @route   PATCH /api/contact/:id/notes
-// @desc    Add admin notes to a message
-// @access  Private
-// ─────────────────────────────────────────────────────────
-const addNotes = asyncHandler(async (req, res) => {
-  const msg = await Contact.findByIdAndUpdate(
-    req.params.id,
-    { adminNotes: req.body.notes },
-    { new: true }
-  );
-  if (!msg) throw new ApiError('Message not found', 404);
-  res.json({ success: true, message: 'Notes saved', contact: msg });
-});
-
-// ─────────────────────────────────────────────────────────
-// @route   DELETE /api/contact/:id
-// @desc    Delete a message
-// @access  Private
-// ─────────────────────────────────────────────────────────
-const deleteMessage = asyncHandler(async (req, res) => {
-  const msg = await Contact.findById(req.params.id);
-  if (!msg) throw new ApiError('Message not found', 404);
-  await msg.deleteOne();
-  res.json({ success: true, message: 'Message deleted' });
-});
-
-// ─────────────────────────────────────────────────────────
-// @route   GET /api/contact/stats
-// @desc    Message stats for dashboard
-// @access  Private
-// ─────────────────────────────────────────────────────────
-const getContactStats = asyncHandler(async (_req, res) => {
-  const [total, unread, replied, spam] = await Promise.all([
-    Contact.countDocuments(),
-    Contact.countDocuments({ status: 'unread' }),
-    Contact.countDocuments({ status: 'replied' }),
-    Contact.countDocuments({ status: 'spam' }),
-  ]);
-
-  // Messages per month (last 6 months)
-  const sixMonthsAgo = new Date();
-  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-
-  const byMonth = await Contact.aggregate([
-    { $match: { createdAt: { $gte: sixMonthsAgo } } },
-    {
-      $group: {
-        _id  : { year: { $year: '$createdAt' }, month: { $month: '$createdAt' } },
-        count: { $sum: 1 },
-      },
-    },
-    { $sort: { '_id.year': 1, '_id.month': 1 } },
-  ]);
-
-  res.json({ success: true, stats: { total, unread, replied, spam, byMonth } });
-});
-
-module.exports = {
-  submitContact, getMessages, getMessage,
-  updateStatus, addNotes, deleteMessage, getContactStats,
-};
+module.exports = { getDashboard, recordVisit, getVisitorStats };
