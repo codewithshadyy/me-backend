@@ -26,9 +26,7 @@ const login = asyncHandler(async (req, res) => {
   const { username, password } = req.body;
 
   // Find admin (explicitly select password field)
-  const admin = await Admin.findOne({
-    $or: [{ username }, { email: username }],
-  }).select('+password +loginAttempts +lockUntil');
+  const admin = await Admin.findOne({username}).select('+password +loginAttempts +lockUntil');
 
   if (!admin) {
     return res.status(401).json({ success: false, message: 'Invalid credentials' });
