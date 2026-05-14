@@ -34,34 +34,34 @@ app.use(helmet({
 }));
 
 // ── CORS ──────────────────────────────────────────────────────
-const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
-  .split(',')
-  .map(o => o.trim())
-  .filter(Boolean);
+// const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
+//   .split(',')
+//   .map(o => o.trim())
+//   .filter(Boolean);
 
-app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (curl, Postman, mobile apps, same-origin)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
-      return callback(null, true);
-    }
-    callback(new Error(`CORS policy: origin ${origin} not allowed`));
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+// app.use(cors({
+//   origin: (origin, callback) => {
+//     // Allow requests with no origin (curl, Postman, mobile apps, same-origin)
+//     if (!origin) return callback(null, true);
+//     if (allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
+//       return callback(null, true);
+//     }
+//     callback(new Error(`CORS policy: origin ${origin} not allowed`));
+//   },
+//   credentials: true,
+//   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+//   allowedHeaders: ['Content-Type', 'Authorization'],
+// }));
 
 // ── Global Rate Limiter ──────────────────────────────────────
-const globalLimiter = rateLimit({
-  windowMs : parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
-  max      : parseInt(process.env.RATE_LIMIT_MAX)        || 100,
-  standardHeaders: true,
-  legacyHeaders  : false,
-  message: { success: false, message: 'Too many requests. Please try again later.' },
-});
-app.use('/api/', globalLimiter);
+// const globalLimiter = rateLimit({
+//   windowMs : parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
+//   max      : parseInt(process.env.RATE_LIMIT_MAX)        || 100,
+//   standardHeaders: true,
+//   legacyHeaders  : false,
+//   message: { success: false, message: 'Too many requests. Please try again later.' },
+// });
+// app.use('/api/', globalLimiter);
 
 // ── Body Parsers ─────────────────────────────────────────────
 app.use(express.json({ limit: '10mb' }));
@@ -104,7 +104,7 @@ app.get('/api', (_req, res) => {
     success : true,
     message : 'Portfolio API is running',
     version : '1.0.0',
-    author  : 'shadrackkipkoech',
+    author  : 'shadrack kipkoech',
     endpoints: {
       auth        : '/api/auth',
       projects    : '/api/projects',
