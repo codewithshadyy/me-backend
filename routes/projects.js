@@ -16,7 +16,7 @@ const { projectRules, mongoIdParam, paginationQuery, validate } = require('../mi
 const { upload, toProjectsFolder }   = require('../middlewares/upload');
 
 // ── Public ─────────────────────────────────────────────────
-router.get('/',               paginationQuery, validate, getProjects);
+router.get('/',               paginationQuery,  getProjects);
 router.get('/categories',     getCategories);
 router.get('/:id',            getProject);
 
