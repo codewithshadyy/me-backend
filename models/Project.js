@@ -96,7 +96,7 @@ const projectSchema = new mongoose.Schema(
 );
 
 // ── Indexes ────────────────────────────────────────────────
-projectSchema.index({ slug: 1 });
+projectSchema.index();
 projectSchema.index({ category: 1, visible: 1 });
 projectSchema.index({ featured: 1, visible: 1 });
 projectSchema.index({ createdAt: -1 });

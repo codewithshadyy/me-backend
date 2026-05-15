@@ -1,4 +1,8 @@
 
+/**
+ * controllers/authController.js
+ * Admin authentication logic
+ */
 
 'use strict';
 
@@ -6,7 +10,6 @@ const Admin             = require('../models/Admin');
 const { generateToken } = require('../middlewares/auth');
 const { asyncHandler, ApiError } = require('../middlewares/errorHandler');
 const { rateLimit, ipKeyGenerator } = require('express-rate-limit');
-const bcrypt = require("bcrypt")
 
 // ── Auth-specific stricter rate limiter ────────────────────
 const authLimiter = rateLimit({
@@ -23,41 +26,13 @@ const authLimiter = rateLimit({
 // @desc    Admin login — returns JWT
 // @access  Public
 // ─────────────────────────────────────────────────────────
-const register = async (req,res) => {
-
-    try {
-        const {username,email, password} =req.body
-        const userExists = await Admin.findOne({
-            $or: [{ username }, { email: username }]
-        })
-
-        if(userExists){
-            res.status(400).json({message:"user takken"})
-        }
-
-        const hashedPassword = await bcrypt.hash(password, 10)
-        const user = await Admin.create({
-            username,
-            email,
-            password:hashedPassword
-        })
-
-        res.status(201).json({message:"user created"})
-        
-    } catch (error) {
-        res.status(500).json({
-            success:false,
-            message:error.message
-        })
-        
-    }
-    
-}
 const login = asyncHandler(async (req, res) => {
   const { username, password } = req.body;
 
   // Find admin (explicitly select password field)
-  const admin = await Admin.findOne({username}).select('+password +loginAttempts +lockUntil');
+  const admin = await Admin.findOne({
+    $or: [{ username }, { email: username }],
+  }).select('+password +loginAttempts +lockUntil');
 
   if (!admin) {
     return res.status(401).json({ success: false, message: 'Invalid credentials' });
@@ -148,4 +123,4 @@ const verifyToken = asyncHandler(async (req, res) => {
   res.json({ success: true, valid: true, admin: req.admin });
 });
 
-module.exports = { login, getMe, logout, changePassword, verifyToken, authLimiter, register };
+module.exports = { login, getMe, logout, changePassword, verifyToken, authLimiter };
