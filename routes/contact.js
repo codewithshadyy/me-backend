@@ -24,7 +24,7 @@ const contactLimiter = rateLimit({
 });
 
 // ── Public ─────────────────────────────────────────────────
-router.post('/', contactLimiter, contactRules, validate, submitContact);
+router.post('/',  submitContact);
 
 // ── Private (Admin) ────────────────────────────────────────
 router.get('/',          protect, getMessages);
