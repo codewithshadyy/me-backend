@@ -1,7 +1,6 @@
 
 
 
-'use strict';
 
 const Experience = require('../models/Experience');
 const { asyncHandler, ApiError } = require('../middlewares/errorHandler');

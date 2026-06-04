@@ -1,6 +1,6 @@
 
 
-'use strict';
+
 
 const mongoose = require('mongoose');
 
@@ -90,6 +90,8 @@ experienceSchema.virtual('formattedDuration').get(function () {
   const end    = this.isCurrent ? 'Present' : this.endDate?.toLocaleString('en-US', { month: 'short', year: 'numeric' });
   return `${start} – ${end}`;
 });
+
+
 
 // ── Indexes ────────────────────────────────────────────────
 experienceSchema.index({ order: 1 });
