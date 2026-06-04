@@ -6,10 +6,10 @@ const express = require('express');
 const router  = express.Router();
 
 const {
-  getProjects, getAllProjects, getProject,
-  createProject, updateProject, deleteProject,
+  getProjects, getAllProjects, getProject,createProject, updateProject, deleteProject,
   toggleFeatured, toggleVisible, getCategories,
 } = require('../controllers/projectsController');
+
 
 const { protect }                    = require('../middlewares/auth');
 const { projectRules, mongoIdParam, paginationQuery, validate } = require('../middlewares/validate');
