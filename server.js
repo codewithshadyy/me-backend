@@ -63,21 +63,20 @@ const globalLimiter = rateLimit({
 });
 app.use('/api/', globalLimiter);
 
-// ── Body Parsers ─────────────────────────────────────────────
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// ── Logger ───────────────────────────────────────────────────
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 } else {
   app.use(morgan('combined'));
 }
 
-// ── Static Files (uploads) ───────────────────────────────────
+
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// ── Health Check ─────────────────────────────────────────────
+
 app.get('/health', (_req, res) => {
   res.json({
     success : true,
@@ -90,7 +89,6 @@ app.get('/health', (_req, res) => {
   });
 });
 
-// ── API Routes ────────────────────────────────────────────────
 app.use('/api/auth',        authRoutes);
 app.use('/api/projects',    projectRoutes);
 app.use('/api/experiences', experienceRoutes);
@@ -98,7 +96,7 @@ app.use('/api/contact',     contactRoutes);
 app.use('/api/upload',      uploadRoutes);
 app.use('/api/stats',       statsRoutes);
 
-// ── API root info ─────────────────────────────────────────────
+
 app.get('/api', (_req, res) => {
   res.json({
     success : true,
@@ -117,23 +115,21 @@ app.get('/api', (_req, res) => {
   });
 });
 
-// ── 404 & Error Handlers ─────────────────────────────────────
-app.use(notFound);
-// app.use(errorHandler);
 
-// ── Start Server ─────────────────────────────────────────────
+app.use(notFound);
+
 const server = app.listen(PORT, () => {
   console.log('\n╔══════════════════════════════════════════╗');
   console.log('║      Portfolio API — shadrack kipkoech          ║');
   console.log('╠══════════════════════════════════════════╣');
-  console.log(`║  Status  : ✅ Running                    ║`);
+  console.log(`║  Status  :  Running                    ║`);
   console.log(`║  Port    : ${PORT}                             ║`);
   console.log(`║  Env     : ${(process.env.NODE_ENV || 'development').padEnd(30)} ║`);
   console.log(`║  DB      : MongoDB                       ║`);
   console.log('╚══════════════════════════════════════════╝\n');
 });
 
-// ── Graceful Shutdown ────────────────────────────────────────
+
 process.on('SIGTERM', () => {
   console.log('SIGTERM received. Shutting down gracefully...');
   server.close(() => {
