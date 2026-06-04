@@ -103,7 +103,7 @@ projectSchema.index({ createdAt: -1 });
 projectSchema.index({ title: 'text', description: 'text', tags: 'text' });
 
 // ── Pre-save: Generate slug ────────────────────────────────
-projectSchema.pre('save', async function (next) {
+projectSchema.pre('save', async function () {
   if (!this.isModified('title') && this.slug) return next();
 
   const base = this.title
@@ -130,7 +130,7 @@ projectSchema.pre('save', async function (next) {
     this.imageUrl = this.images[0];
   }
 
-  next();
+  
 });
 
 module.exports = mongoose.model('Project', projectSchema);
