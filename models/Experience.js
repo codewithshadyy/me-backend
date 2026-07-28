@@ -38,7 +38,7 @@ const experienceSchema = new mongoose.Schema(
     },
     startDate: {
       type    : Date,
-      required: [true, 'Start date is required'],
+      // required: [true, 'Start date is required'],
     },
     endDate: {
       type: Date, // null = current job
