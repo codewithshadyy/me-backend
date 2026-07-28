@@ -9,11 +9,6 @@ const Contact    = require('../models/Contact');
 const { asyncHandler, ApiError } = require('../middlewares/errorHandler');
 const { sendContactEmail, sendAutoReply } = require('../utils/mail');
 
-// ─────────────────────────────────────────────────────────
-// @route   POST /api/contact
-// @desc    Submit contact form (public)
-// @access  Public
-// ─────────────────────────────────────────────────────────
 const submitContact = asyncHandler(async (req, res) => {
   const {
     name, email, phone, projectType,
@@ -22,7 +17,7 @@ const submitContact = asyncHandler(async (req, res) => {
 
   // Simple honeypot spam check (if a 'website' field is filled = bot)
   if (req.body.website) {
-    return res.status(200).json({ success: true, message: 'Message received' }); // silently ignore
+    return res.status(200).json({ success: true, message: 'Message received' });
   }
 
   // Save to database
@@ -35,11 +30,11 @@ const submitContact = asyncHandler(async (req, res) => {
     userAgent: req.get('User-Agent'),
   });
 
-  // Send emails (non-blocking — don't fail if email fails)
+
   try {
     await Promise.all([
-      sendContactEmail(contact),   // notify admin
-      sendAutoReply(contact),      // confirm to sender
+      sendContactEmail(contact),   
+      sendAutoReply(contact),      
     ]);
   } catch (emailErr) {
     console.warn('Email delivery failed (non-critical):', emailErr.message);
@@ -85,16 +80,12 @@ const getMessages = asyncHandler(async (req, res) => {
   });
 });
 
-// ─────────────────────────────────────────────────────────
-// @route   GET /api/contact/:id
-// @desc    Get single message
-// @access  Private
-// ─────────────────────────────────────────────────────────
+
 const getMessage = asyncHandler(async (req, res) => {
   const msg = await Contact.findById(req.params.id);
   if (!msg) throw new ApiError('Message not found', 404);
 
-  // Auto-mark as read
+
   if (msg.status === 'unread') {
     msg.status = 'read';
     await msg.save();
@@ -103,11 +94,6 @@ const getMessage = asyncHandler(async (req, res) => {
   res.json({ success: true, message: msg });
 });
 
-// ─────────────────────────────────────────────────────────
-// @route   PATCH /api/contact/:id/status
-// @desc    Update message status
-// @access  Private
-// ─────────────────────────────────────────────────────────
 const updateStatus = asyncHandler(async (req, res) => {
   const { status } = req.body;
   const VALID = ['unread', 'read', 'replied', 'archived', 'spam'];
@@ -129,11 +115,7 @@ const updateStatus = asyncHandler(async (req, res) => {
   res.json({ success: true, message: 'Status updated', contact: msg });
 });
 
-// ─────────────────────────────────────────────────────────
-// @route   PATCH /api/contact/:id/notes
-// @desc    Add admin notes to a message
-// @access  Private
-// ─────────────────────────────────────────────────────────
+
 const addNotes = asyncHandler(async (req, res) => {
   const msg = await Contact.findByIdAndUpdate(
     req.params.id,
@@ -144,11 +126,7 @@ const addNotes = asyncHandler(async (req, res) => {
   res.json({ success: true, message: 'Notes saved', contact: msg });
 });
 
-// ─────────────────────────────────────────────────────────
-// @route   DELETE /api/contact/:id
-// @desc    Delete a message
-// @access  Private
-// ─────────────────────────────────────────────────────────
+
 const deleteMessage = asyncHandler(async (req, res) => {
   const msg = await Contact.findById(req.params.id);
   if (!msg) throw new ApiError('Message not found', 404);
