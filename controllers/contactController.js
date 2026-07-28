@@ -20,6 +20,13 @@ const submitContact = asyncHandler(async (req, res) => {
     return res.status(200).json({ success: true, message: 'Message received' });
   }
 
+
+  console.log("Received budget:", JSON.stringify(budget));
+console.log(
+  "Received char codes:",
+  [...budget].map(c => `${c} -> ${c.charCodeAt(0)}`)
+);
+
   // Save to database
   const contact = await Contact.create({
     name, email, phone, projectType,
