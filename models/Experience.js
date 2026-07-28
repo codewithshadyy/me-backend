@@ -48,7 +48,7 @@ const experienceSchema = new mongoose.Schema(
       default: false,
     },
     duration: {
-      type: String, // e.g. "Jan 2023 – Present"
+      type: String, 
       trim: true,
     },
     responsibilities: {
@@ -83,7 +83,6 @@ const experienceSchema = new mongoose.Schema(
   }
 );
 
-// ── Virtual: formatted duration ────────────────────────────
 experienceSchema.virtual('formattedDuration').get(function () {
   if (this.duration) return this.duration;
   const start  = this.startDate?.toLocaleString('en-US', { month: 'short', year: 'numeric' });

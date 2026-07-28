@@ -24,18 +24,23 @@ const getExperience = asyncHandler(async (req, res) => {
 // POST /api/experiences — Private (Admin)
 const createExperience = asyncHandler(async (req, res) => {
   const {
-    role, company, companyUrl, location, employmentType,
-    startDate, endDate, isCurrent, duration,
-    responsibilities, technologies, achievements,
-    visible, order,
+    role, company, 
+    // companyUrl, location, employmentType,
+    // startDate, endDate, isCurrent, 
+    duration,
+    responsibilities, technologies, 
+    // achievements,
+    // visible, order,
   } = req.body;
 
   const exp = await Experience.create({
-    role, company, companyUrl, location, employmentType,
-    startDate, endDate, isCurrent: isCurrent === true || isCurrent === 'true',
-    duration, responsibilities, technologies, achievements,
-    visible: visible !== false && visible !== 'false',
-    order: Number(order) || 0,
+    role, company, 
+    // companyUrl, location, employmentType,
+    // startDate, endDate, isCurrent: isCurrent === true || isCurrent === 'true',
+    duration, responsibilities, technologies,
+    //  achievements,
+    // visible: visible !== false && visible !== 'false',
+    // order: Number(order) || 0,
   });
 
   res.status(201).json({
@@ -51,9 +56,11 @@ const updateExperience = asyncHandler(async (req, res) => {
   if (!exp) throw new ApiError('Experience not found', 404);
 
   const fields = [
-    'role', 'company', 'companyUrl', 'location', 'employmentType',
-    'startDate', 'endDate', 'duration', 'responsibilities',
-    'technologies', 'achievements', 'visible', 'order',
+    'role', 'company', 
+    // 'companyUrl', 'location', 'employmentType',
+    // 'startDate', 'endDate',
+     'duration', 'responsibilities','technologies', 
+    //  'achievements', 'visible', 'order',
   ];
 
   fields.forEach(f => {
