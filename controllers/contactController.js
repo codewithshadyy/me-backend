@@ -134,11 +134,7 @@ const deleteMessage = asyncHandler(async (req, res) => {
   res.json({ success: true, message: 'Message deleted' });
 });
 
-// ─────────────────────────────────────────────────────────
-// @route   GET /api/contact/stats
-// @desc    Message stats for dashboard
-// @access  Private
-// ─────────────────────────────────────────────────────────
+
 const getContactStats = asyncHandler(async (_req, res) => {
   const [total, unread, replied, spam] = await Promise.all([
     Contact.countDocuments(),
@@ -147,7 +143,6 @@ const getContactStats = asyncHandler(async (_req, res) => {
     Contact.countDocuments({ status: 'spam' }),
   ]);
 
-  // Messages per month (last 6 months)
   const sixMonthsAgo = new Date();
   sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 

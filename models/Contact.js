@@ -40,14 +40,14 @@ const contactSchema = new mongoose.Schema(
     },
     budget: {
       type: String,
-      enum: ['$100 – $5000', '$500 – $1,000', '$1,000 – $5,000', '$5,000+', 'Open to discuss', ''],
+      enum: ['$100 – $500', '$500 – $1,000', '$1,000 – $5,000', '$5,000+', 'Open to discuss', ''],
       default: '',
     },
     message: {
       type     : String,
       required : [true, 'Message is required'],
       trim     : true,
-      minlength: [5,   'Message must be at least 10 characters'],
+      minlength: [5,   'Message must be at least 5 characters'],
       maxlength: [3000, 'Message cannot exceed 3000 characters'],
     },
     collaboration: {
